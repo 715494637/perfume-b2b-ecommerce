@@ -1,6 +1,6 @@
 /**
  * GlassCard - 玻璃形态卡片组件
- * 使用 Glassmorphism 效果的卡片组件
+ * 使用 Glassmorphism 效果的卡片组件，与登录页面风格一致
  */
 
 import { ReactNode } from 'react';
@@ -18,7 +18,7 @@ export interface GlassCardProps {
  * @param children - 卡片内容
  * @param className - 自定义类名
  * @param variant - 玻璃效果变体 (light | dark | subtle)
- * @param glow - 是否添加金色发光效果
+ * @param glow - 是否添加发光效果
  * @param onClick - 点击事件（可选，添加后显示 cursor-pointer）
  */
 export function GlassCard({
@@ -45,10 +45,9 @@ export function GlassCard({
   return (
     <div
       className={`
-        rounded-2xl
         ${variantClasses[variant]}
         ${colorClasses[variant]}
-        ${glow ? 'glow-neon' : ''}
+        ${glow ? 'shadow-2xl' : ''}
         ${onClick ? 'cursor-pointer hover:bg-white/5 transition-all duration-200' : ''}
         ${className}
       `}
