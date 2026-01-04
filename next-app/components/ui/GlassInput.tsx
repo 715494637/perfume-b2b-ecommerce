@@ -27,7 +27,7 @@ export const GlassInput = forwardRef<HTMLInputElement, GlassInputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-primary-700 mb-1.5 dark:text-primary-300"
+            className="block text-sm font-medium text-gray-300 mb-1.5"
           >
             {label}
           </label>
@@ -40,15 +40,15 @@ export const GlassInput = forwardRef<HTMLInputElement, GlassInputProps>(
             className={`
               w-full
               px-4
-              py-2.5
-              glass
-              bg-white/80
-              text-primary-950
-              placeholder:text-primary-400
-              placeholder:opacity-60
-              rounded-lg
+              py-3
+              glass-subtle
+              bg-black/20
+              text-white
+              placeholder:text-gray-500
+              placeholder:font-light
+              rounded-xl
               border
-              border-white/20
+              border-white/10
               backdrop-blur-md
               transition-all
               duration-200
@@ -56,7 +56,8 @@ export const GlassInput = forwardRef<HTMLInputElement, GlassInputProps>(
               focus:ring-2
               focus:ring-accent-400/50
               focus:border-accent-400/50
-              ${error ? 'border-red-400/50 focus:ring-red-400/50' : ''}
+              focus:bg-black/40
+              ${error ? 'border-red-500/50 focus:ring-red-500/50' : ''}
               ${className}
             `}
             {...rest}
@@ -64,11 +65,11 @@ export const GlassInput = forwardRef<HTMLInputElement, GlassInputProps>(
         </div>
 
         {error && (
-          <p className="mt-1.5 text-sm text-red-500">{error}</p>
+          <p className="mt-1.5 text-sm text-red-400">{error}</p>
         )}
 
         {helperText && !error && (
-          <p className="mt-1.5 text-sm text-primary-500 dark:text-primary-400">
+          <p className="mt-1.5 text-sm text-gray-400">
             {helperText}
           </p>
         )}

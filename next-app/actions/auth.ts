@@ -9,7 +9,7 @@ export async function signIn(formData: FormData) {
   const password = formData.get('password') as string
   const redirectTo = formData.get('redirectTo') as string
 
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { error } = await supabase.auth.signInWithPassword({
     email,
@@ -25,7 +25,7 @@ export async function signIn(formData: FormData) {
 }
 
 export async function signOut() {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   await supabase.auth.signOut()
   revalidatePath('/', 'layout')
@@ -35,7 +35,7 @@ export async function signOut() {
 export async function resetPassword(formData: FormData) {
   const email = formData.get('email') as string
 
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password`,
@@ -51,7 +51,7 @@ export async function resetPassword(formData: FormData) {
 export async function updatePassword(formData: FormData) {
   const password = formData.get('password') as string
 
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { error } = await supabase.auth.updateUser({
     password,

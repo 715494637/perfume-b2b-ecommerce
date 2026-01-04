@@ -37,19 +37,19 @@ export function GlassCard({
 
   // 根据变体调整颜色
   const colorClasses = {
-    light: 'bg-white/80 text-primary-950 dark:bg-primary-950/80 dark:text-primary-50',
-    dark: 'bg-primary-900/30 text-primary-50',
-    subtle: 'bg-white/10 text-primary-950 dark:bg-primary-900/10 dark:text-primary-50',
+    light: 'text-white',
+    dark: 'text-white',
+    subtle: 'text-white',
   };
 
   return (
     <div
       className={`
-        rounded-xl
+        rounded-2xl
         ${variantClasses[variant]}
         ${colorClasses[variant]}
-        ${glow ? 'glow-gold' : ''}
-        ${onClick ? 'cursor-pointer hover:bg-white/90 transition-all duration-200' : ''}
+        ${glow ? 'glow-neon' : ''}
+        ${onClick ? 'cursor-pointer hover:bg-white/5 transition-all duration-200' : ''}
         ${className}
       `}
       onClick={onClick}

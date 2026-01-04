@@ -8,7 +8,7 @@ import { ReactNode } from 'react';
 export interface GlassButtonProps {
   children: ReactNode;
   className?: string;
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'outline';
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
   onClick?: () => void;
@@ -44,25 +44,42 @@ export function GlassButton({
   // 变体配置
   const variantClasses = {
     primary: `
-      glass
-      bg-accent-600/80
-      text-white
-      hover:bg-accent-500/80
-      hover:glow-gold-sm
+      bg-gradient-to-r from-highlight-yellow to-yellow-400
+      text-black
+      font-bold
+      shadow-lg shadow-yellow-500/20
+      hover:from-yellow-300 hover:to-yellow-400
+      hover:shadow-xl hover:shadow-yellow-500/30
+      hover:scale-[1.02]
       active:scale-95
+      border-none
     `,
     secondary: `
-      glass
-      bg-white/80
-      text-primary-950
-      hover:bg-white/90
+      glass-subtle
+      bg-white/5
+      text-white
+      hover:bg-white/10
       hover:border-accent-400/50
       active:scale-95
     `,
     ghost: `
       glass-subtle
-      text-primary-950
-      hover:bg-white/20
+      text-gray-300
+      bg-transparent
+      border-transparent
+      hover:bg-white/5
+      hover:text-white
+      active:scale-95
+    `,
+    outline: `
+      glass-subtle
+      bg-transparent
+      text-gray-200
+      border-2
+      border-white/20
+      hover:bg-white/5
+      hover:border-white/40
+      hover:text-white
       active:scale-95
     `,
   };

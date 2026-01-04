@@ -32,7 +32,7 @@ export async function uploadAvatar(file: File, userId: string) {
   const fileExt = file.name.split('.').pop()
   const fileName = `${userId}/avatar.${fileExt}`
 
-  const { data, error } = await supabase.storage
+  const { data: uploadData, error } = await supabase.storage
     .from('avatars')
     .upload(fileName, file, {
       upsert: true
@@ -44,9 +44,9 @@ export async function uploadAvatar(file: File, userId: string) {
   }
 
   // 获取私有URL（需要签名）
-  const { data: { signedUrl } } = await supabase.storage
+  const { data } = await supabase.storage
     .from('avatars')
-    .createSignedUrl(fileName, 60 * 60 * 24) // 24小时有效期
+    .createSignedUrl(fileName, 86400) // 24小时有效期（秒）
 
-  return signedUrl
+  return data?.signedUrl || null
 }

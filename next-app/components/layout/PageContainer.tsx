@@ -36,12 +36,13 @@ export function PageContainer({
   };
 
   // 内边距配置
-  const paddingClasses = {
-    false: '',
-    true: 'px-4 md:px-6 lg:px-8 py-6 md:py-8',
-    sm: 'px-3 md:px-4 py-4 md:py-6',
-    md: 'px-4 md:px-6 py-6 md:py-8',
-    lg: 'px-6 md:px-8 py-8 md:py-10',
+  const getPaddingClass = (padding: boolean | 'sm' | 'md' | 'lg') => {
+    if (padding === false) return '';
+    if (padding === true) return 'px-4 md:px-6 lg:px-8 py-6 md:py-8';
+    if (padding === 'sm') return 'px-3 md:px-4 py-4 md:py-6';
+    if (padding === 'md') return 'px-4 md:px-6 py-6 md:py-8';
+    if (padding === 'lg') return 'px-6 md:px-8 py-8 md:py-10';
+    return '';
   };
 
   return (
@@ -49,7 +50,7 @@ export function PageContainer({
       className={`
         mx-auto
         ${maxWidthClasses[maxWidth]}
-        ${paddingClasses[padding]}
+        ${getPaddingClass(padding)}
         ${className}
       `}
     >

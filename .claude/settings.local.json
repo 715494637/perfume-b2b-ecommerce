@@ -10,7 +10,8 @@
       "mcp__plugin_supabase_supabase__list_tables",
       "mcp__cloudflare-bindings__search_cloudflare_documentation",
       "mcp__plugin_github_github__get_me",
-      "mcp__plugin_github_github__create_repository"
+      "mcp__plugin_github_github__create_repository",
+      "mcp__plugin_playwright_playwright__browser_take_screenshot"
     ]
   }
 }

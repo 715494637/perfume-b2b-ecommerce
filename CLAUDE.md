@@ -21,7 +21,7 @@
 
 | 层级 | 技术 | 说明 |
 |------|------|------|
-| **前端框架** | Next.js 16 | 使用 App Router，React 18+ |
+| **前端框架** | Next.js 16 | 使用 App Router，React 18+,bun 安装依赖 |
 | **UI 设计** | Glassmorphism | 玻璃形态 + Apple UI 高级感 |
 | **样式方案** | Tailwind CSS | 响应式设计，支持玻璃特效 |
 | **数据库** | Supabase | PostgreSQL + 认证 + 实时订阅 |
