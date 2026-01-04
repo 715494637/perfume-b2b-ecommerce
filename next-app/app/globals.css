@@ -171,6 +171,44 @@ h1, h2, h3, h4, h5, h6 {
   transition-duration: 200ms;
 }
 
+/* ==========================================
+   自定义 Checkbox 样式
+   ========================================== */
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 0.35rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+input[type="checkbox"]:checked {
+  background-color: white;
+  border-color: white;
+}
+
+input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  width: 0.35rem;
+  height: 0.6rem;
+  border: solid black;
+  border-width: 0 2px 2px 0;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+input[type="checkbox"]:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
 /* 禁用动画（用户偏好） */
 @media (prefers-reduced-motion: reduce) {
   *,

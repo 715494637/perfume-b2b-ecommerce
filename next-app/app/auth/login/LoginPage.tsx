@@ -30,7 +30,7 @@ export default function LoginPage() {
   const redirectTo = searchParams.get('redirectTo') || '/'
 
   useEffect(() => {
-    // 检查是否已经登录
+    // Check if already logged in
     const checkSession = async () => {
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
@@ -60,53 +60,44 @@ export default function LoginPage() {
         router.refresh()
       }
     } catch (err) {
-      setError('登录失败，请重试')
+      setError('Login failed, please try again')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden bg-[#1a2f23]">
-      {/* 背景装饰 - 模拟绿叶光影背景 */}
-      <div className="absolute inset-0 z-0">
-        {/* 深色基底 */}
-        <div className="absolute inset-0 bg-[#0d261d]" />
-        
-        {/* 大型模糊光斑 - 模拟阳光透过树叶 */}
-        <div className="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vw] rounded-full bg-[#2b8259] opacity-40 blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-20%] w-[70vw] h-[70vw] rounded-full bg-[#3ba370] opacity-30 blur-[100px]" />
-        
-        {/* 明亮的嫩绿高光 - 模拟高光 */}
-        <div className="absolute top-[20%] right-[10%] w-[400px] h-[400px] rounded-full bg-[#9ad822] opacity-20 blur-[80px]" />
-        <div className="absolute bottom-[30%] left-[5%] w-[300px] h-[300px] rounded-full bg-[#7eb812] opacity-15 blur-[60px]" />
-        
-        {/* 纹理覆盖（可选，增加质感） */}
-        <div className="absolute inset-0 opacity-20 mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-      </div>
-      
-      <GlassCard className="w-full max-w-lg p-12 relative z-10 border-white/20 shadow-2xl backdrop-blur-[60px] bg-white/10">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-serif text-white mb-4 tracking-wide">Welcome Back</h1>
-          <p className="text-gray-200 text-lg font-light tracking-wide">Find your perfect space</p>
+    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Background image */}
+      <div
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/background.png')" }}
+      />
+      {/* Semi-transparent overlay */}
+      <div className="absolute inset-0 z-0 bg-black/30" />
+
+      <GlassCard className="w-full max-w-[380px] p-6 relative z-10 border-white/20 shadow-2xl backdrop-blur-[60px] bg-white/5 rounded-3xl">
+        <div className="text-center mb-5">
+          <h1 className="text-3xl font-serif text-white mb-2 tracking-wide">Welcome Back</h1>
+          <p className="text-gray-200 text-sm font-light tracking-wide opacity-80">Sign in to your account</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          <div className="mb-4 p-3 bg-red-100/90 border border-red-400/50 text-red-700 rounded-lg text-sm">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <GlassInput
             type="email"
-            label="邮箱地址"
-            placeholder="请输入邮箱地址"
+            label="Email"
+            placeholder="Enter your email"
             {...register('email', {
-              required: '请输入邮箱地址',
+              required: 'Email is required',
               pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: '请输入有效的邮箱地址',
+                message: 'Please enter a valid email address',
               },
             })}
             error={errors.email?.message}
@@ -114,76 +105,76 @@ export default function LoginPage() {
 
           <GlassInput
             type="password"
-            label="密码"
-            placeholder="请输入密码"
+            label="Password"
+            placeholder="Enter your password"
             {...register('password', {
-              required: '请输入密码',
+              required: 'Password is required',
               minLength: {
                 value: 6,
-                message: '密码至少需要6个字符',
+                message: 'Password must be at least 6 characters',
               },
             })}
             error={errors.password?.message}
           />
 
-          <div className="flex items-center justify-between">
-            <label className="flex items-center">
+          <div className="flex items-center justify-between pt-1">
+            <label className="flex items-center cursor-pointer group">
               <input
                 type="checkbox"
                 {...register('remember')}
-                className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="mr-2 w-4 h-4 rounded border-white/30 bg-white/10 text-white focus:ring-offset-0 focus:ring-1 focus:ring-white/50"
               />
-              <span className="text-sm text-gray-600">记住我</span>
+              <span className="text-sm text-gray-200 group-hover:text-white transition-colors">Remember me</span>
             </label>
             <Link
               href="/auth/forgot-password"
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-sm text-gray-200 hover:text-white transition-colors underline-offset-4 hover:underline"
             >
-              忘记密码？
+              Forgot password?
             </Link>
           </div>
 
           <GlassButton
             type="submit"
             disabled={loading}
-            className="w-full"
+            className="w-full rounded-full bg-white hover:bg-white/90 text-black font-medium py-2.5 text-base transition-transform hover:scale-[1.02] active:scale-[0.98]"
           >
-            {loading ? '登录中...' : '登录'}
+            {loading ? 'Signing in...' : 'Sign in'}
           </GlassButton>
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-gray-600">
-            还没有账户？{' '}
+        <div className="mt-5 text-center">
+          <p className="text-gray-300 text-sm">
+            Don't have an account?{' '}
             <Link
               href="/auth/register"
-              className="text-blue-600 hover:text-blue-800"
+              className="text-white font-medium hover:underline underline-offset-4"
             >
-              立即注册
+              Sign up
             </Link>
           </p>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-5">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
+              <div className="w-full border-t border-white/20" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">或</span>
+              <span className="px-3 bg-transparent text-gray-300 backdrop-blur-sm text-xs">or</span>
             </div>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-4">
             <GlassButton
               variant="outline"
-              className="w-full"
+              className="w-full rounded-full border-white/30 hover:bg-white/10 text-white font-normal py-2 text-sm"
               onClick={() => {
                 // TODO: 实现 Google OAuth 登录
-                alert('Google OAuth 登录功能即将推出')
+                alert('Google OAuth login coming soon')
               }}
             >
-              使用 Google 账号登录
+              Continue with Google
             </GlassButton>
           </div>
         </div>

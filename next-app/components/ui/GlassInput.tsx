@@ -3,7 +3,7 @@
  * 使用 Glassmorphism 效果的输入框组件
  */
 
-import { InputHTMLAttributes, forwardRef } from 'react';
+import { InputHTMLAttributes, forwardRef, useId } from 'react';
 
 export interface GlassInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -20,44 +20,45 @@ export interface GlassInputProps extends InputHTMLAttributes<HTMLInputElement> {
  */
 export const GlassInput = forwardRef<HTMLInputElement, GlassInputProps>(
   ({ label, error, helperText, className = '', id, ...rest }, ref) => {
-    const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+    // 使用 useId 生成稳定的 ID，避免 hydration 不匹配
+    const generatedId = useId();
+    const inputId = id || `input-${generatedId}`;
 
     return (
       <div className="w-full">
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-gray-300 mb-1.5"
+            className="block text-xs text-gray-200 mb-1.5 font-light tracking-wide opacity-90 pl-1"
           >
             {label}
           </label>
         )}
 
-        <div className="relative">
+        <div className="relative group">
           <input
             ref={ref}
             id={inputId}
             className={`
               w-full
-              px-4
+              px-5
               py-3
-              glass-subtle
-              bg-black/20
+              bg-white/5
               text-white
-              placeholder:text-gray-500
+              placeholder:text-gray-400/60
               placeholder:font-light
-              rounded-xl
+              placeholder:text-sm
+              rounded-2xl
               border
               border-white/10
-              backdrop-blur-md
+              backdrop-blur-sm
               transition-all
-              duration-200
+              duration-300
               focus:outline-none
-              focus:ring-2
-              focus:ring-accent-400/50
-              focus:border-accent-400/50
-              focus:bg-black/40
-              ${error ? 'border-red-500/50 focus:ring-red-500/50' : ''}
+              focus:bg-white/10
+              focus:border-white/30
+              focus:shadow-[0_0_20px_rgba(255,255,255,0.05)]
+              ${error ? 'border-red-400/50' : ''}
               ${className}
             `}
             {...rest}

@@ -44,42 +44,37 @@ export function GlassButton({
   // 变体配置
   const variantClasses = {
     primary: `
-      bg-gradient-to-r from-highlight-yellow to-yellow-400
+      bg-white
       text-black
-      font-bold
-      shadow-lg shadow-yellow-500/20
-      hover:from-yellow-300 hover:to-yellow-400
-      hover:shadow-xl hover:shadow-yellow-500/30
+      font-medium
+      shadow-lg shadow-black/10
+      hover:bg-white/90
       hover:scale-[1.02]
       active:scale-95
       border-none
     `,
     secondary: `
-      glass-subtle
-      bg-white/5
+      bg-white/10
       text-white
-      hover:bg-white/10
-      hover:border-accent-400/50
+      backdrop-blur-sm
+      hover:bg-white/20
+      border border-white/20
       active:scale-95
     `,
     ghost: `
-      glass-subtle
-      text-gray-300
+      text-white/80
       bg-transparent
       border-transparent
-      hover:bg-white/5
+      hover:bg-white/10
       hover:text-white
       active:scale-95
     `,
     outline: `
-      glass-subtle
       bg-transparent
-      text-gray-200
-      border-2
-      border-white/20
-      hover:bg-white/5
-      hover:border-white/40
-      hover:text-white
+      text-white
+      border border-white/30
+      hover:bg-white/10
+      hover:border-white/50
       active:scale-95
     `,
   };
