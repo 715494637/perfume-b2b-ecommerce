@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(ui-ux-pro-max)",
+      "mcp__plugin_supabase_supabase__list_projects",
+      "mcp__plugin_supabase_supabase__get_project",
+      "Skill(zcf:workflow)",
+      "mcp__plugin_supabase_supabase__apply_migration",
+      "mcp__plugin_supabase_supabase__execute_sql",
+      "mcp__plugin_supabase_supabase__list_tables",
+      "mcp__cloudflare-bindings__search_cloudflare_documentation",
+      "mcp__plugin_github_github__get_me",
+      "mcp__plugin_github_github__create_repository"
+    ]
+  }
+}

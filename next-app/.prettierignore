@@ -1,0 +1,29 @@
+# 依赖
+node_modules
+.pnp
+.pnp.js
+
+# 构建输出
+.next
+out
+dist
+build
+
+# 缓存
+.cache
+.turbo
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 其他
+*.lock
+bun.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# 类型定义
+next-env.d.ts

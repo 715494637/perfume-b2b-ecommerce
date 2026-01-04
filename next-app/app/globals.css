@@ -1,0 +1,181 @@
+@import "tailwindcss";
+
+/* ==========================================
+   Google Fonts - 奢华字体组合
+   Playfair Display (标题) + Inter (正文)
+   ========================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+/* ==========================================
+   CSS 变量 - 奢华配色方案
+   ========================================== */
+:root {
+  /* 基础颜色 */
+  --background: #fafaf9;
+  --foreground: #0c0a09;
+
+  /* 主色调 - 深色系 */
+  --primary-50: #fafaf9;
+  --primary-100: #f5f5f4;
+  --primary-200: #e7e5e4;
+  --primary-300: #d6d3d1;
+  --primary-400: #a8a29e;
+  --primary-500: #78716c;
+  --primary-600: #57534e;
+  --primary-700: #44403c;
+  --primary-800: #292524;
+  --primary-900: #1c1917;
+  --primary-950: #0c0a09;
+
+  /* 强调色 - 金色系 */
+  --accent-50: #fefce8;
+  --accent-100: #fef9c3;
+  --accent-200: #fef08a;
+  --accent-300: #fde047;
+  --accent-400: #facc15;
+  --accent-500: #eab308;
+  --accent-600: #ca8a04;
+  --accent-700: #a16207;
+  --accent-800: #854d0e;
+  --accent-900: #713f12;
+  --accent-950: #422006;
+
+  /* 奢华金色 */
+  --gold: #d4af37;
+  --gold-light: #f4e5b0;
+  --gold-dark: #b8860b;
+
+  /* Glassmorphism 透明度 */
+  --glass-light: rgba(255, 255, 255, 0.8);
+  --glass-medium: rgba(255, 255, 255, 0.6);
+  --glass-dark: rgba(255, 255, 255, 0.3);
+  --glass-subtle: rgba(255, 255, 255, 0.1);
+
+  /* 边框颜色 */
+  --border-light: rgba(255, 255, 255, 0.2);
+  --border-medium: rgba(255, 255, 255, 0.3);
+  --border-dark: rgba(255, 255, 255, 0.4);
+
+  /* 字体 */
+  --font-heading: 'Playfair Display', serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+@theme inline {
+  /* 颜色扩展 */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* 主色调 */
+  --color-primary-50: var(--primary-50);
+  --color-primary-100: var(--primary-100);
+  --color-primary-200: var(--primary-200);
+  --color-primary-300: var(--primary-300);
+  --color-primary-400: var(--primary-400);
+  --color-primary-500: var(--primary-500);
+  --color-primary-600: var(--primary-600);
+  --color-primary-700: var(--primary-700);
+  --color-primary-800: var(--primary-800);
+  --color-primary-900: var(--primary-900);
+  --color-primary-950: var(--primary-950);
+
+  /* 强调色 */
+  --color-accent-50: var(--accent-50);
+  --color-accent-100: var(--accent-100);
+  --color-accent-200: var(--accent-200);
+  --color-accent-300: var(--accent-300);
+  --color-accent-400: var(--accent-400);
+  --color-accent-500: var(--accent-500);
+  --color-accent-600: var(--accent-600);
+  --color-accent-700: var(--accent-700);
+  --color-accent-800: var(--accent-800);
+  --color-accent-900: var(--accent-900);
+  --color-accent-950: var(--accent-950);
+
+  /* 奢华金色 */
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-dark: var(--gold-dark);
+
+  /* 字体 */
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
+}
+
+/* 暗色模式 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0c0a09;
+    --foreground: #fafaf9;
+  }
+}
+
+/* ==========================================
+   全局样式
+   ========================================== */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 标题字体 */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
+
+/* ==========================================
+   Glassmorphism 工具类
+   ========================================== */
+.glass {
+  background: var(--glass-light);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-light);
+}
+
+.glass-dark {
+  background: var(--glass-dark);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-medium);
+}
+
+.glass-subtle {
+  background: var(--glass-subtle);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border-light);
+}
+
+/* 金色发光效果 */
+.glow-gold {
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+}
+
+.glow-gold-sm {
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+}
+
+/* ==========================================
+   动画过渡
+   ========================================== */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* 禁用动画（用户偏好） */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
