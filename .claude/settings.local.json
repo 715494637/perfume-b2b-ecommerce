@@ -11,7 +11,8 @@
       "mcp__cloudflare-bindings__search_cloudflare_documentation",
       "mcp__plugin_github_github__get_me",
       "mcp__plugin_github_github__create_repository",
-      "mcp__plugin_playwright_playwright__browser_take_screenshot"
+      "mcp__plugin_playwright_playwright__browser_take_screenshot",
+      "mcp__plugin_playwright_playwright__browser_click"
     ]
   }
 }
