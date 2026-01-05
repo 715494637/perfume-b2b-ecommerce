@@ -37,7 +37,7 @@ export async function signUp(formData: FormData) {
     return { error: passwordValidation.errors.join(', ') }
   }
 
-  const supabase = await createClient()
+  const supabase = createClient()
 
   try {
     // 检查邮箱是否已存在
@@ -103,7 +103,7 @@ export async function signIn(formData: FormData) {
   const password = formData.get('password') as string
   const redirectTo = formData.get('redirectTo') as string
 
-  const supabase = await createClient()
+  const supabase = createClient()
 
   try {
     // 查找用户
@@ -173,7 +173,7 @@ export async function signOut() {
  * 验证邮箱
  */
 export async function verifyEmail(token: string) {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   try {
     // 查找使用该验证令牌的用户
@@ -221,7 +221,7 @@ export async function verifyEmail(token: string) {
  * 重新发送验证邮件
  */
 export async function resendVerificationEmail(email: string) {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   try {
     // 查找用户
@@ -275,7 +275,7 @@ export async function resendVerificationEmail(email: string) {
  * 请求重置密码
  */
 export async function requestPasswordReset(email: string) {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   try {
     // 查找用户
@@ -339,7 +339,7 @@ export async function resetPassword(formData: FormData) {
     return { error: passwordValidation.errors.join(', ') }
   }
 
-  const supabase = await createClient()
+  const supabase = createClient()
 
   try {
     // 查找使用该重置令牌的用户
@@ -455,7 +455,7 @@ export async function changePassword(formData: FormData) {
   const currentPassword = formData.get('currentPassword') as string
   const newPassword = formData.get('newPassword') as string
 
-  const supabase = await createClient()
+  const supabase = createClient()
 
   try {
     // 获取当前用户信息

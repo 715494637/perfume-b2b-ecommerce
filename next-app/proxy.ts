@@ -1,6 +1,23 @@
-import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { verifyToken, type JWTPayload } from '@/lib/auth/jwt'
+import { createClient } from '@/lib/supabase/server'
+
+const COOKIE_NAME = 'auth_token'
+
+/**
+ * 从请求中获取 JWT Token
+ */
+function getTokenFromRequest(req: NextRequest): string | null {
+  return req.cookies.get(COOKIE_NAME)?.value || null
+}
+
+/**
+ * 验证 Token 并获取用户信息
+ */
+async function getCurrentUserFromToken(token: string): Promise<JWTPayload | null> {
+  return verifyToken(token)
+}
 
 export async function proxy(req: NextRequest) {
   // 跳过静态资源文件
@@ -11,27 +28,9 @@ export async function proxy(req: NextRequest) {
     return NextResponse.next()
   }
 
-  const res = NextResponse.next()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return req.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            res.cookies.set(name, value, options)
-          )
-        },
-      },
-    }
-  )
-
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  // 获取并验证 Token
+  const token = getTokenFromRequest(req)
+  const user = token ? await getCurrentUserFromToken(token) : null
 
   // 公开路由列表
   const publicRoutes = [
@@ -41,7 +40,8 @@ export async function proxy(req: NextRequest) {
     '/auth/login',
     '/auth/register',
     '/auth/forgot-password',
-    '/api/auth/callback'
+    '/auth/reset-password',
+    '/auth/verify',
   ]
 
   // 管理端路由前缀
@@ -64,18 +64,20 @@ export async function proxy(req: NextRequest) {
   )
 
   // 如果没有会话且不是公开路由，重定向到登录页
-  if (!session && !isPublicRoute) {
+  if (!user && !isPublicRoute) {
     const redirectUrl = new URL('/auth/login', req.url)
     redirectUrl.searchParams.set('redirectTo', req.nextUrl.pathname)
     return NextResponse.redirect(redirectUrl)
   }
 
   // 如果有会话但访问管理端，检查是否是管理员
-  if (session && isAdminRoute) {
+  if (user && isAdminRoute) {
+    const supabase = createClient()
+
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
-      .eq('id', session.user.id)
+      .eq('id', user.userId)
       .single()
 
     if (profile?.role !== 'admin') {
@@ -83,7 +85,7 @@ export async function proxy(req: NextRequest) {
     }
   }
 
-  return res
+  return NextResponse.next()
 }
 
 export const config = {
