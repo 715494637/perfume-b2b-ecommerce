@@ -21,6 +21,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [requireVerification, setRequireVerification] = useState(false)
   const [resending, setResending] = useState(false)
 
@@ -37,12 +38,12 @@ export default function LoginPage() {
   useEffect(() => {
     // 显示验证成功的消息
     if (verified === 'true') {
-      setError('邮箱验证成功，请登录')
-      setTimeout(() => setError(null), 3000)
+      setSuccessMessage('邮箱验证成功，请登录')
+      setTimeout(() => setSuccessMessage(null), 3000)
     }
     if (reset === 'true') {
-      setError('密码重置成功，请使用新密码登录')
-      setTimeout(() => setError(null), 3000)
+      setSuccessMessage('密码重置成功，请使用新密码登录')
+      setTimeout(() => setSuccessMessage(null), 3000)
     }
   }, [verified, reset])
 
@@ -85,7 +86,7 @@ export default function LoginPage() {
     const result = await resendVerificationEmail(email)
 
     if (result.success) {
-      setError('验证邮件已发送，请查看邮箱')
+      setSuccessMessage('验证邮件已发送，请查看邮箱')
       setRequireVerification(false)
     } else {
       setError(result.error || '发送失败，请稍后重试')
@@ -109,6 +110,12 @@ export default function LoginPage() {
           <h1 className="text-3xl font-serif text-white mb-2 tracking-wide">Welcome Back</h1>
           <p className="text-gray-200 text-sm font-light tracking-wide opacity-80">Sign in to your account</p>
         </div>
+
+        {successMessage && (
+          <div className="mb-4 p-3 bg-green-100/90 border border-green-400/50 text-green-700 rounded-lg text-sm">
+            {successMessage}
+          </div>
+        )}
 
         {error && (
           <div
