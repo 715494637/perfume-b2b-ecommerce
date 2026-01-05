@@ -1,14 +1,13 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
-import { User, Session } from '@supabase/supabase-js'
-import { createClient } from '@/lib/supabase/client'
+import { getCurrentUser } from '@/lib/auth/jwt'
 import { Profile } from '@/types/auth'
+import { getCurrentUserProfile } from '@/actions/auth'
 
 interface AuthContextType {
-  user: User | null
+  user: { userId: string; email: string } | null
   profile: Profile | null
-  session: Session | null
   loading: boolean
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
@@ -17,72 +16,56 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<{ userId: string; email: string } | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
-
-  const supabase = createClient()
 
   useEffect(() => {
     // 获取初始会话
     const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setSession(session)
-      setUser(session?.user ?? null)
+      try {
+        const currentUser = await getCurrentUser()
+        setUser(currentUser)
 
-      if (session?.user) {
-        await fetchProfile(session.user.id)
+        if (currentUser) {
+          await fetchProfile(currentUser.userId)
+        }
+      } catch (error) {
+        console.error('获取会话失败:', error)
+      } finally {
+        setLoading(false)
       }
-
-      setLoading(false)
     }
 
     getInitialSession()
-
-    // 监听认证状态变化
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-
-      if (session?.user) {
-        await fetchProfile(session.user.id)
-      } else {
-        setProfile(null)
-      }
-
-      setLoading(false)
-    })
-
-    return () => subscription.unsubscribe()
   }, [])
 
   const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
-
-    setProfile(data)
+    try {
+      const profile = await getCurrentUserProfile()
+      setProfile(profile)
+    } catch (error) {
+      console.error('获取用户资料失败:', error)
+    }
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
+    // 调用服务端登出
+    const response = await fetch('/api/auth/signout', { method: 'POST' })
+    if (response.ok) {
+      window.location.href = '/auth/login'
+    }
   }
 
   const refreshProfile = async () => {
     if (user) {
-      await fetchProfile(user.id)
+      await fetchProfile(user.userId)
     }
   }
 
   const value = {
     user,
     profile,
-    session,
     loading,
     signOut,
     refreshProfile,

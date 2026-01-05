@@ -21,6 +21,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
 
   const {
     register,
@@ -47,9 +48,10 @@ export default function RegisterPage() {
         setError(result.error)
       } else {
         setSuccess(true)
+        setSuccessMessage(result.message || '注册成功！请查看邮箱并点击验证链接')
       }
     } catch (err) {
-      setError('Registration failed, please try again')
+      setError('注册失败，请稍后重试')
     } finally {
       setLoading(false)
     }
@@ -74,7 +76,7 @@ export default function RegisterPage() {
               </svg>
             </div>
             <h2 className="text-2xl font-serif text-white mb-2">Registration Successful</h2>
-            <p className="text-gray-200 text-sm">Please check your email to verify your account.</p>
+            <p className="text-gray-200 text-sm">{successMessage}</p>
           </div>
 
           <GlassButton
@@ -142,12 +144,16 @@ export default function RegisterPage() {
           <GlassInput
             type="password"
             label="Password"
-            placeholder="Create a password"
+            placeholder="Create a password (8+ chars, uppercase, lowercase, number)"
             {...register('password', {
               required: 'Password is required',
               minLength: {
-                value: 6,
-                message: 'Password must be at least 6 characters',
+                value: 8,
+                message: 'Password must be at least 8 characters',
+              },
+              pattern: {
+                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+                message: 'Password must contain uppercase, lowercase, and number',
               },
             })}
             error={errors.password?.message}

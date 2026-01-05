@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
-import { createClient } from '@/lib/supabase/client'
+import { signIn } from '@/actions/auth'
 import { GlassCard } from '@/components/ui/GlassCard'
 import { GlassButton } from '@/components/ui/GlassButton'
 import { GlassInput } from '@/components/ui/GlassInput'
 import Link from 'next/link'
+import { resendVerificationEmail } from '@/actions/auth'
 
 interface LoginFormData {
   email: string
@@ -20,6 +21,8 @@ export default function LoginPage() {
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [requireVerification, setRequireVerification] = useState(false)
+  const [resending, setResending] = useState(false)
 
   const {
     register,
@@ -28,42 +31,67 @@ export default function LoginPage() {
   } = useForm<LoginFormData>()
 
   const redirectTo = searchParams.get('redirectTo') || '/'
+  const verified = searchParams.get('verified')
+  const reset = searchParams.get('reset')
 
   useEffect(() => {
-    // Check if already logged in
-    const checkSession = async () => {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        router.push(redirectTo)
-      }
+    // 显示验证成功的消息
+    if (verified === 'true') {
+      setError('邮箱验证成功，请登录')
+      setTimeout(() => setError(null), 3000)
     }
-    checkSession()
-  }, [router, redirectTo])
+    if (reset === 'true') {
+      setError('密码重置成功，请使用新密码登录')
+      setTimeout(() => setError(null), 3000)
+    }
+  }, [verified, reset])
 
   const onSubmit = async (data: LoginFormData) => {
     setLoading(true)
     setError(null)
+    setRequireVerification(false)
 
-    try {
-      const supabase = createClient()
+    const formData = new FormData()
+    formData.append('email', data.email)
+    formData.append('password', data.password)
+    formData.append('redirectTo', redirectTo)
 
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      })
+    const result = await signIn(formData)
 
-      if (signInError) {
-        setError(signInError.message)
+    if (result.success) {
+      // 登录成功，重定向到目标页面
+      router.push(redirectTo)
+      router.refresh()
+    } else {
+      if (result.requireVerification) {
+        setRequireVerification(true)
+        setError(result.error || '请先验证您的邮箱地址')
       } else {
-        router.push(redirectTo)
-        router.refresh()
+        setError(result.error || '登录失败，请稍后重试')
       }
-    } catch (err) {
-      setError('Login failed, please try again')
-    } finally {
-      setLoading(false)
     }
+
+    setLoading(false)
+  }
+
+  const handleResendVerification = async () => {
+    const email = errors.email?.message ? '' : searchParams.get('email') || ''
+    if (!email) {
+      setError('请输入邮箱地址')
+      return
+    }
+
+    setResending(true)
+    const result = await resendVerificationEmail(email)
+
+    if (result.success) {
+      setError('验证邮件已发送，请查看邮箱')
+      setRequireVerification(false)
+    } else {
+      setError(result.error || '发送失败，请稍后重试')
+    }
+
+    setResending(false)
   }
 
   return (
@@ -83,8 +111,23 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-100/90 border border-red-400/50 text-red-700 rounded-lg text-sm">
+          <div
+            className={`mb-4 p-3 rounded-lg text-sm ${
+              requireVerification
+                ? 'bg-yellow-100/90 border border-yellow-400/50 text-yellow-700'
+                : 'bg-red-100/90 border border-red-400/50 text-red-700'
+            }`}
+          >
             {error}
+            {requireVerification && (
+              <button
+                onClick={handleResendVerification}
+                disabled={resending}
+                className="ml-2 underline hover:no-underline"
+              >
+                {resending ? '发送中...' : '重新发送'}
+              </button>
+            )}
           </div>
         )}
 
@@ -110,8 +153,8 @@ export default function LoginPage() {
             {...register('password', {
               required: 'Password is required',
               minLength: {
-                value: 6,
-                message: 'Password must be at least 6 characters',
+                value: 8,
+                message: 'Password must be at least 8 characters',
               },
             })}
             error={errors.password?.message}
@@ -153,30 +196,6 @@ export default function LoginPage() {
               Sign up
             </Link>
           </p>
-        </div>
-
-        <div className="mt-5">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/20" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-3 bg-transparent text-gray-300 backdrop-blur-sm text-xs">or</span>
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <GlassButton
-              variant="outline"
-              className="w-full rounded-full border-white/30 hover:bg-white/10 text-white font-normal py-2 text-sm"
-              onClick={() => {
-                // TODO: 实现 Google OAuth 登录
-                alert('Google OAuth login coming soon')
-              }}
-            >
-              Continue with Google
-            </GlassButton>
-          </div>
         </div>
       </GlassCard>
     </div>
