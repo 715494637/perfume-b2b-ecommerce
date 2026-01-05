@@ -12,7 +12,7 @@ const GlassCard = React.forwardRef<
     tilt?: boolean
     hover?: boolean
   }
->(({ className, variant = "light", glow = true, tilt = false, hover = true, children, ...props }, ref) => {
+>(({ className, variant = "light", glow = true, tilt = false, hover = false, children, ...props }, ref) => {
   const cardRef = React.useRef<HTMLDivElement>(null)
 
   // 3D 倾斜效果的鼠标位置追踪

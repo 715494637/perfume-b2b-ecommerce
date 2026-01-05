@@ -23,10 +23,10 @@ const GlassInput = React.forwardRef<HTMLInputElement, GlassInputProps>(
         {label && (
           <motion.label
             htmlFor={finalId}
-            className="text-sm font-medium text-gray-200 block"
+            className="block text-[0.9375rem] font-medium text-white/90 leading-[1.5] tracking-[0.01em]"
             animate={{
-              scale: focused || hasValue ? 0.95 : 1,
-              opacity: focused || hasValue ? 0.8 : 1,
+              scale: focused || hasValue ? 0.98 : 1,
+              opacity: focused || hasValue ? 0.8 : 0.9,
             }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
           >
@@ -39,10 +39,13 @@ const GlassInput = React.forwardRef<HTMLInputElement, GlassInputProps>(
             type={type}
             id={finalId}
             className={cn(
-              "flex h-11 w-full rounded-full border bg-white/5 px-4 py-2 text-sm text-white backdrop-blur-md transition-all duration-300 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50",
-              "border-white/20",
-              focused && "border-white/40 bg-white/10 focus-visible:bg-white/15 shadow-[0_0_20px_rgba(255,255,255,0.1)]",
-              error && "border-red-400/50 bg-red-500/10 focus-visible:ring-red-400/20",
+              "flex h-13 w-full rounded-2xl border bg-white/5 px-6 py-[14px] text-[0.9375rem] text-white backdrop-blur-md transition-all duration-300",
+              "border-white/20 placeholder:text-white/40",
+              "hover:bg-white/8 hover:border-white/30 hover:shadow-[0_0_20px_rgba(255,255,255,0.05)]",
+              "focus-visible:outline-none focus-visible:bg-white/10 focus-visible:border-white/50 focus-visible:shadow-[0_0_30px_rgba(255,255,255,0.15)]",
+              "disabled:cursor-not-allowed disabled:bg-white/3 disabled:border-white/10 disabled:opacity-50",
+              "file:border-0 file:bg-transparent file:text-sm file:font-medium",
+              error && "border-red-400/50 bg-red-500/10 focus-visible:border-red-400/50 focus-visible:shadow-[0_0_20px_rgba(239,68,68,0.1)]",
               className
             )}
             ref={ref}
@@ -67,9 +70,9 @@ const GlassInput = React.forwardRef<HTMLInputElement, GlassInputProps>(
           <AnimatePresence>
             {focused && !error && (
               <motion.div
-                className="absolute inset-0 rounded-full bg-white/10 blur-lg -z-10"
+                className="absolute inset-0 rounded-2xl bg-white/10 blur-xl -z-10"
                 initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1.02 }}
+                animate={{ opacity: 1, scale: 1.03 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3 }}
               />
@@ -81,13 +84,13 @@ const GlassInput = React.forwardRef<HTMLInputElement, GlassInputProps>(
         <AnimatePresence>
           {error && (
             <motion.p
-              className="text-sm text-red-400 flex items-center gap-1"
+              className="flex items-center gap-2 text-[0.8125rem] font-medium text-red-400 leading-[1.4]"
               initial={{ opacity: 0, y: -5 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
               transition={{ duration: 0.2 }}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               {error}
@@ -98,7 +101,7 @@ const GlassInput = React.forwardRef<HTMLInputElement, GlassInputProps>(
         {/* 帮助文本 */}
         {helperText && !error && (
           <motion.p
-            className="text-xs text-gray-400"
+            className="text-[0.8125rem] text-gray-400 leading-[1.5] tracking-[0.01em]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}

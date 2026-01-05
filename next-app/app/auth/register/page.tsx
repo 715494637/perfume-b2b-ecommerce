@@ -60,7 +60,7 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+      <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 relative overflow-hidden">
         {/* Background image */}
         <div
           className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
@@ -69,24 +69,35 @@ export default function RegisterPage() {
         {/* Semi-transparent overlay */}
         <div className="absolute inset-0 z-0 bg-black/30" />
 
+        {/* 背景光晕效果 */}
         <motion.div
-          className="relative z-10"
-          initial={{ opacity: 0, scale: 0.9 }}
+          className="absolute inset-0 pointer-events-none overflow-hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+        >
+          <div className="absolute -top-20 -left-20 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
+          <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
+        </motion.div>
+
+        <motion.div
+          className="relative z-10 w-full"
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           <NewGlassCard
-            className="w-full max-w-[480px] p-6 border-white/20"
+            className="w-full max-w-[640px] sm:max-w-[560px] md:max-w-[640px] p-6 sm:p-8 md:p-10 lg:p-12 border-white/20 rounded-[32px]"
             tilt
           >
             <motion.div
-              className="text-center mb-5"
+              className="text-center space-y-2 mb-8"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
               <motion.div
-                className="mx-auto w-16 h-16 bg-green-100/90 rounded-full flex items-center justify-center mb-4 animate-glow"
+                className="mx-auto w-16 h-16 bg-green-100/90 rounded-full flex items-center justify-center mb-6 animate-glow"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 200, damping: 15 }}
@@ -95,8 +106,12 @@ export default function RegisterPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </motion.div>
-              <h2 className="text-2xl font-serif text-white mb-2">Registration Successful</h2>
-              <p className="text-gray-200 text-sm">{successMessage}</p>
+              <h2 className="text-[2rem] sm:text-[2.125rem] md:text-[2.25rem] font-serif font-semibold text-white leading-[1.2] tracking-[0.02em]">
+                Registration Successful
+              </h2>
+              <p className="text-base font-light text-white/80 leading-[1.6] tracking-[0.01em]">
+                {successMessage}
+              </p>
             </motion.div>
 
             <motion.div
@@ -119,7 +134,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 relative overflow-hidden">
       {/* Background image */}
       <div
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
@@ -128,25 +143,50 @@ export default function RegisterPage() {
       {/* Semi-transparent overlay */}
       <div className="absolute inset-0 z-0 bg-black/30" />
 
+      {/* 背景光晕效果 */}
       <motion.div
-        className="relative z-10"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="absolute inset-0 pointer-events-none overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+      >
+        <div className="absolute -top-20 -left-20 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
+      </motion.div>
+
+      <motion.div
+        className="relative z-10 w-full"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
       >
         <NewGlassCard
-          className="w-full max-w-[480px] p-6 border-white/20"
+          className="w-full max-w-[640px] sm:max-w-[560px] md:max-w-[640px] p-6 sm:p-8 md:p-10 lg:p-12 border-white/20 rounded-[32px]"
           tilt
         >
+          {/* 品牌Logo区域 */}
+          <motion.div
+            className="inline-flex items-center justify-center w-16 h-16 mb-6 mx-auto rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.05, type: "spring", stiffness: 200, damping: 15 }}
+          >
+            <span className="text-3xl font-serif font-semibold text-white tracking-wider">L</span>
+          </motion.div>
+
           {/* Header */}
           <motion.div
-            className="text-center mb-5"
+            className="text-center space-y-2 mb-8"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <h1 className="text-3xl font-serif text-white mb-2 tracking-wide">Create Account</h1>
-            <p className="text-gray-200 text-sm font-light tracking-wide opacity-80">Sign up to get started</p>
+            <h1 className="text-[2rem] sm:text-[2.125rem] md:text-[2.25rem] font-serif font-semibold text-white leading-[1.2] tracking-[0.02em]">
+              Create Account
+            </h1>
+            <p className="text-base font-light text-white/80 leading-[1.6] tracking-[0.01em]">
+              Sign up to get started
+            </p>
           </motion.div>
 
           {/* Error Message */}
@@ -156,7 +196,7 @@ export default function RegisterPage() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="mb-4 p-3 bg-red-100/90 border border-red-400/50 text-red-700 rounded-lg text-sm"
+                className="mb-6 p-4 bg-red-100/90 border border-red-400/50 text-red-700 rounded-2xl text-sm backdrop-blur-md"
               >
                 {error}
               </motion.div>
@@ -164,11 +204,11 @@ export default function RegisterPage() {
           </AnimatePresence>
 
           {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <motion.div
-              initial={{ opacity: 0, x: -10 }}
+              initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.2, duration: 0.4 }}
             >
               <NewGlassInput
                 type="text"
@@ -186,9 +226,9 @@ export default function RegisterPage() {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, x: -10 }}
+              initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.3, duration: 0.4 }}
             >
               <NewGlassInput
                 type="email"
@@ -206,9 +246,9 @@ export default function RegisterPage() {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, x: -10 }}
+              initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.4, duration: 0.4 }}
             >
               <NewGlassInput
                 type="password"
@@ -230,9 +270,9 @@ export default function RegisterPage() {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, x: -10 }}
+              initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 }}
+              transition={{ delay: 0.5, duration: 0.4 }}
             >
               <NewGlassInput
                 type="password"
@@ -265,16 +305,16 @@ export default function RegisterPage() {
 
           {/* Footer */}
           <motion.div
-            className="mt-5 text-center"
+            className="mt-8 text-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7 }}
           >
-            <p className="text-gray-300 text-sm">
+            <p className="text-[0.875rem] text-gray-300">
               Already have an account?{' '}
               <Link
                 href="/auth/login"
-                className="text-white font-medium hover:underline underline-offset-4"
+                className="text-white font-medium hover:underline underline-offset-4 transition-colors duration-200"
               >
                 Sign in
               </Link>

@@ -33,7 +33,7 @@ export function AuthLayout({
   const router = useRouter()
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 relative overflow-hidden">
       {/* Background image */}
       <div
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
@@ -42,25 +42,36 @@ export function AuthLayout({
       {/* Semi-transparent overlay */}
       <div className="absolute inset-0 z-0 bg-black/30" />
 
+      {/* 背景光晕效果 */}
       <motion.div
-        className="relative z-10"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="absolute inset-0 pointer-events-none overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
       >
-        <GlassCard className="w-full max-w-[480px] p-6 border-white/20" tilt>
+        <div className="absolute -top-20 -left-20 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
+      </motion.div>
+
+      <motion.div
+        className="relative z-10 w-full"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+      >
+        <GlassCard className="w-full max-w-[640px] sm:max-w-[560px] md:max-w-[640px] p-6 sm:p-8 md:p-10 lg:p-12 border-white/20 rounded-[32px]" tilt>
           {/* Header */}
           <motion.div
-            className="text-center mb-5"
+            className="text-center space-y-2 mb-8"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <h1 className="text-3xl font-serif text-white mb-2 tracking-wide">
+            <h1 className="text-[2rem] sm:text-[2.125rem] md:text-[2.25rem] font-serif font-semibold text-white leading-[1.2] tracking-[0.02em]">
               {title}
             </h1>
             {subtitle && (
-              <p className="text-gray-200 text-sm font-light tracking-wide opacity-80">
+              <p className="text-base font-light text-white/80 leading-[1.6] tracking-[0.01em]">
                 {subtitle}
               </p>
             )}
@@ -73,7 +84,7 @@ export function AuthLayout({
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="mb-4 p-3 bg-green-100/90 border border-green-400/50 text-green-700 rounded-lg text-sm"
+                className="mb-6 p-4 bg-green-100/90 border border-green-400/50 text-green-700 rounded-2xl text-sm backdrop-blur-md"
               >
                 {successMessage}
               </motion.div>
@@ -86,7 +97,7 @@ export function AuthLayout({
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="mb-4 p-3 bg-red-100/90 border border-red-400/50 text-red-700 rounded-lg text-sm"
+                className="mb-6 p-4 bg-red-100/90 border border-red-400/50 text-red-700 rounded-2xl text-sm backdrop-blur-md"
               >
                 {errorMessage}
               </motion.div>
@@ -99,7 +110,7 @@ export function AuthLayout({
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="mb-4 p-3 bg-yellow-100/90 border border-yellow-400/50 text-yellow-700 rounded-lg text-sm"
+                className="mb-6 p-4 bg-yellow-100/90 border border-yellow-400/50 text-yellow-700 rounded-2xl text-sm backdrop-blur-md"
               >
                 {warningMessage}
               </motion.div>
@@ -120,11 +131,11 @@ export function AuthLayout({
           )}
 
           {/* Footer */}
-          {footer && <div className="mt-5 text-center">{footer}</div>}
+          {footer && <div className="mt-8 text-center">{footer}</div>}
 
           {/* Back Button */}
           {showBackButton && !footer && (
-            <div className="mt-5 text-center">
+            <div className="mt-8 text-center">
               <button
                 onClick={() => router.push(backTo)}
                 className="text-sm text-gray-200 hover:text-white transition-colors underline-offset-4 hover:underline"
