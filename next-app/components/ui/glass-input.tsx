@@ -19,19 +19,14 @@ const GlassInput = React.forwardRef<HTMLInputElement, GlassInputProps>(
     const finalId = id || inputId
 
     return (
-      <div className="space-y-2">
+      <div className="block w-full">
         {label && (
-          <motion.label
+          <label
             htmlFor={finalId}
-            className="block text-[0.9375rem] font-medium text-white/90 leading-[1.5] tracking-[0.01em]"
-            animate={{
-              scale: focused || hasValue ? 0.98 : 1,
-              opacity: focused || hasValue ? 0.8 : 0.9,
-            }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            className="block text-xs font-medium text-white/70 leading-[1.4] tracking-[0.02em] uppercase mb-1.5"
           >
             {label}
-          </motion.label>
+          </label>
         )}
 
         <div className="relative">
@@ -81,27 +76,25 @@ const GlassInput = React.forwardRef<HTMLInputElement, GlassInputProps>(
         </div>
 
         {/* 错误提示 */}
-        <AnimatePresence>
-          {error && (
-            <motion.p
-              className="flex items-center gap-2 text-[0.8125rem] font-medium text-red-400 leading-[1.4]"
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-              transition={{ duration: 0.2 }}
-            >
-              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {error}
-            </motion.p>
-          )}
-        </AnimatePresence>
+        {error && (
+          <motion.p
+            className="flex items-center gap-2 text-[0.8125rem] font-medium text-red-400 leading-[1.4] mt-1.5"
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.2 }}
+          >
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {error}
+          </motion.p>
+        )}
 
         {/* 帮助文本 */}
         {helperText && !error && (
           <motion.p
-            className="text-[0.8125rem] text-gray-400 leading-[1.5] tracking-[0.01em]"
+            className="text-[0.8125rem] text-gray-400 leading-[1.5] tracking-[0.01em] mt-1.5"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}

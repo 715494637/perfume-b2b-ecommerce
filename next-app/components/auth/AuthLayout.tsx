@@ -3,6 +3,8 @@
 import { ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { GlassCard } from '@/components/ui/glass-card'
+import { GlassAlert } from '@/components/ui/glass-alert'
+import { GlassAuthBackground } from '@/components/ui/glass-auth-background'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export interface AuthLayoutProps {
@@ -28,38 +30,13 @@ export function AuthLayout({
   successMessage,
   errorMessage,
   warningMessage,
-  loading = false,
+  loading = false
 }: AuthLayoutProps) {
   const router = useRouter()
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 relative overflow-hidden">
-      {/* Background image */}
-      <div
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/background.png')" }}
-      />
-      {/* Semi-transparent overlay */}
-      <div className="absolute inset-0 z-0 bg-black/30" />
-
-      {/* 背景光晕效果 */}
-      <motion.div
-        className="absolute inset-0 pointer-events-none overflow-hidden"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-      >
-        <div className="absolute -top-20 -left-20 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
-      </motion.div>
-
-      <motion.div
-        className="relative z-10 w-full"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-      >
-        <GlassCard className="w-full max-w-[640px] sm:max-w-[560px] md:max-w-[640px] p-6 sm:p-8 md:p-10 lg:p-12 border-white/20 rounded-[32px]" tilt>
+    <GlassAuthBackground>
+      <GlassCard className="w-full max-w-[800px] mx-auto p-6 sm:p-8 md:p-10 lg:p-12 border-white/20 rounded-[32px]" tilt>
           {/* Header */}
           <motion.div
             className="text-center space-y-2 mb-8"
@@ -67,11 +44,11 @@ export function AuthLayout({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <h1 className="text-[2rem] sm:text-[2.125rem] md:text-[2.25rem] font-serif font-semibold text-white leading-[1.2] tracking-[0.02em]">
+            <h1 className="text-[2rem] sm:text-[2.125rem] md:text-[2.25rem] font-serif font-semibold text-white leading-[1.2] tracking-[0.02em] drop-shadow-xl">
               {title}
             </h1>
             {subtitle && (
-              <p className="text-base font-light text-white/80 leading-[1.6] tracking-[0.01em]">
+              <p className="text-base font-light text-white/90 leading-[1.6] tracking-[0.01em] drop-shadow-md">
                 {subtitle}
               </p>
             )}
@@ -80,40 +57,25 @@ export function AuthLayout({
           {/* Messages */}
           <AnimatePresence>
             {successMessage && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mb-6 p-4 bg-green-100/90 border border-green-400/50 text-green-700 rounded-2xl text-sm backdrop-blur-md"
-              >
+              <GlassAlert variant="success" className="mb-6">
                 {successMessage}
-              </motion.div>
+              </GlassAlert>
             )}
           </AnimatePresence>
 
           <AnimatePresence>
             {errorMessage && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mb-6 p-4 bg-red-100/90 border border-red-400/50 text-red-700 rounded-2xl text-sm backdrop-blur-md"
-              >
+              <GlassAlert variant="error" className="mb-6">
                 {errorMessage}
-              </motion.div>
+              </GlassAlert>
             )}
           </AnimatePresence>
 
           <AnimatePresence>
             {warningMessage && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mb-6 p-4 bg-yellow-100/90 border border-yellow-400/50 text-yellow-700 rounded-2xl text-sm backdrop-blur-md"
-              >
+              <GlassAlert variant="warning" className="mb-6">
                 {warningMessage}
-              </motion.div>
+              </GlassAlert>
             )}
           </AnimatePresence>
 
@@ -138,15 +100,14 @@ export function AuthLayout({
             <div className="mt-8 text-center">
               <button
                 onClick={() => router.push(backTo)}
-                className="text-sm text-gray-200 hover:text-white transition-colors underline-offset-4 hover:underline"
+                className="text-sm text-white/95 hover:text-white transition-colors underline-offset-4 hover:underline drop-shadow-sm"
               >
                 Back to Login
               </button>
             </div>
           )}
         </GlassCard>
-      </motion.div>
-    </div>
+    </GlassAuthBackground>
   )
 }
 

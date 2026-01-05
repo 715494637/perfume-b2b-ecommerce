@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { verifyEmail } from '@/actions/auth'
 import { AuthLayout } from '@/components/auth/AuthLayout'
 import { GlassSpinner } from '@/components/ui/glass-spinner'
+import { GlassAuthBackground } from '@/components/ui/glass-auth-background'
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams()
@@ -48,16 +49,9 @@ function VerifyEmailContent() {
 export default function VerifyEmailPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
-        <div
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/background.png')" }}
-        />
-        <div className="absolute inset-0 z-0 bg-black/30" />
-        <div className="relative z-10">
-          <GlassSpinner size="lg" variant="glass" />
-        </div>
-      </div>
+      <GlassAuthBackground>
+        <GlassSpinner size="lg" variant="glass" />
+      </GlassAuthBackground>
     }>
       <VerifyEmailContent />
     </Suspense>

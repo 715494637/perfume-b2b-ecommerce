@@ -12,7 +12,7 @@ const GlassCard = React.forwardRef<
     tilt?: boolean
     hover?: boolean
   }
->(({ className, variant = "light", glow = true, tilt = false, hover = false, children, ...props }, ref) => {
+>(({ className, variant = "dark", glow = true, tilt = false, hover = false, children, ...props }, ref) => {
   const cardRef = React.useRef<HTMLDivElement>(null)
 
   // 3D 倾斜效果的鼠标位置追踪
@@ -38,9 +38,9 @@ const GlassCard = React.forwardRef<
   }
 
   const variants = {
-    light: "bg-white/5 backdrop-blur-xl border-white/20",
-    dark: "bg-black/20 backdrop-blur-xl border-white/10",
-    subtle: "bg-white/3 backdrop-blur-lg border-white/15",
+    light: "bg-white/10 backdrop-blur-2xl border-white/20 shadow-[0_8px_32px_0_rgba(255,255,255,0.1)]",
+    dark: "bg-black/30 backdrop-blur-2xl border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]",
+    subtle: "bg-white/8 backdrop-blur-xl border-white/15 shadow-[0_8px_32px_0_rgba(255,255,255,0.08)]",
   }
 
   return (
@@ -71,40 +71,36 @@ const GlassCard = React.forwardRef<
       ref={ref}
       {...props}
     >
-      {/* 动态光效 */}
+      {/* 动态光效 - 性能优化版 */}
       {tilt && (
         <div
           className="absolute inset-0 rounded-3xl pointer-events-none overflow-hidden"
-          style={{ transform: "translateZ(1px)" }}
+          style={{ willChange: 'opacity' }}
         >
           <div
-            className="absolute inset-0 opacity-0 transition-opacity duration-300"
+            className="absolute inset-0 transition-opacity duration-200"
             style={{
-              background: `radial-gradient(circle at calc(50% + ${mouseX.get() * 100}%) calc(50% + ${mouseY.get() * 100}%), rgba(255,255,255,0.15) 0%, transparent 60%)`,
-              opacity: Math.abs(mouseX.get()) + Math.abs(mouseY.get()) > 0 ? 1 : 0,
+              background: `radial-gradient(circle at calc(50% + ${mouseX.get() * 100}%) calc(50% + ${mouseY.get() * 100}%), rgba(255,255,255,0.1) 0%, transparent 50%)`,
+              opacity: Math.abs(mouseX.get()) + Math.abs(mouseY.get()) > 0 ? 0.8 : 0,
             }}
           />
         </div>
       )}
 
-      {/* 内容容器 */}
-      <div className="relative z-10" style={{ transform: "translateZ(10px)" }}>
-        {children}
-      </div>
-
-      {/* 顶部光晕 */}
+      {/* 顶部光晕 - 性能优化版 */}
       {glow && (
-        <motion.div
-          className="absolute inset-0 rounded-3xl pointer-events-none"
+        <div
+          className="absolute inset-0 rounded-3xl pointer-events-none z-0"
           style={{
-            background: "linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, transparent 50%)",
-            opacity: 0.5,
+            background: "linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, transparent 40%)",
           }}
-          initial={{ opacity: 0.3 }}
-          animate={{ opacity: [0.3, 0.5, 0.3] }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         />
       )}
+
+      {/* 内容 */}
+      <div className="relative z-10 w-full h-full">
+        {children}
+      </div>
     </motion.div>
   )
 })

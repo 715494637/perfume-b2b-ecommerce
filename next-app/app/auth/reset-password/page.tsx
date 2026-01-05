@@ -6,6 +6,7 @@ import { resetPassword } from '@/actions/auth'
 import { AuthLayout } from '@/components/auth/AuthLayout'
 import { GlassInput } from '@/components/ui/glass-input'
 import { GlassButton } from '@/components/ui/glass-button'
+import { GlassAuthBackground } from '@/components/ui/glass-auth-background'
 import { motion } from 'framer-motion'
 
 function ResetPasswordContent() {
@@ -160,20 +161,13 @@ function ResetPasswordContent() {
 export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
-        <div
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/background.png')" }}
+      <GlassAuthBackground>
+        <motion.div
+          className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full mx-auto"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         />
-        <div className="absolute inset-0 z-0 bg-black/30" />
-        <div className="relative z-10">
-          <motion.div
-            className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          />
-        </div>
-      </div>
+      </GlassAuthBackground>
     }>
       <ResetPasswordContent />
     </Suspense>
