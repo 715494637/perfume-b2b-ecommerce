@@ -24,9 +24,12 @@
 | **前端框架** | Next.js 16 | 使用 App Router，React 18+,bun 安装依赖 |
 | **UI 设计** | Glassmorphism | 玻璃形态 + Apple UI 高级感 |
 | **样式方案** | Tailwind CSS | 响应式设计，支持玻璃特效 |
-| **数据库** | Supabase | PostgreSQL + 认证 + 实时订阅 |
+| **数据库** | Supabase | PostgreSQL 数据库 |
 | **图片存储** | Supabase Storage | 文件存储 + CDN 加速 |
 | **支付网关** | Creem API | 海外支付集成 |
+| **邮件服务** | Resend | 邮件发送服务 |
+| **会话管理** | JWT + Cookies | 自定义认证会话管理 |
+| **密码安全** | bcrypt | 密码哈希存储（12 rounds） |
 | **国际化** | next-intl | i18n 多语言支持 |
 | **SEO** | Next.js Metadata | 动态 meta + sitemap |
 | **状态管理** | React Context + Zustand | 轻量级状态管理 |
@@ -58,8 +61,8 @@
 │                         数据层 (Supabase)                     │
 ├─────────────────────────────────────────────────────────────┤
 │  ┌──────────┬──────────┬──────────┬──────────┬──────────┐  │
-│  │ Auth     │ Database │ Storage  │ Realtime │ Edge     │  │
-│  │ 认证服务 │ PostgreSQL│ 文件存储 │ 实时订阅 │ Functions│  │
+│  │ Database │ Storage  │ Edge     │          │          │  │
+│  │ PostgreSQL│ 文件存储 │ Functions│          │          │  │
 │  └──────────┴──────────┴──────────┴──────────┴──────────┘  │
 └─────────────────────────────────────────────────────────────┘
                               │
@@ -67,10 +70,10 @@
 ┌─────────────────────────────────────────────────────────────┐
 │                       第三方服务                             │
 ├─────────────────────────────────────────────────────────────┤
-│  ┌──────────┬──────────┬──────────────────────────────────┐ │
-│  │ Creem    │ Cloudflare│ Google OAuth                    │ │
-│  │ 支付网关 │ CDN       │ 第三方登录                      │ │
-│  └──────────┴──────────┴──────────────────────────────────┘ │
+│  ┌──────────┬──────────┐                                     │
+│  │ Creem    │ Resend   │                                     │
+│  │ 支付网关 │ 邮件服务 │                                     │
+│  └──────────┴──────────┘                                     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -80,14 +83,23 @@
 
 ### 3.1 用户端功能
 
-#### 3.1.1 认证模块
+#### 3.1.1 认证模块（自定义认证）
 | 功能 | 说明 |
 |------|------|
-| Google OAuth 登录 | 第三方登录 |
+| 邮箱密码注册 | 用户注册 + 邮箱验证 |
 | 邮箱密码登录 | 传统登录方式 |
-| 邮箱注册 | 用户注册 |
+| 邮箱验证 | 注册后需验证邮箱才能登录 |
+| 密码重置 | 通过邮件重置密码 |
+| 修改密码 | 登录后修改密码 |
 | 登出 | 安全登出 |
-| 会话管理 | Supabase Auth |
+| 会话管理 | JWT Token + HTTP-only Cookie |
+
+**认证流程：**
+1. 注册 → 密码哈希存储 → 发送验证邮件
+2. 验证邮箱 → 激活账户
+3. 登录 → 验证密码 → 生成 JWT Token → 设置 Cookie
+4. 请求 → 验证 JWT Token → 获取用户信息
+5. 登出 → 清除 Cookie
 
 #### 3.1.2 商品模块
 | 功能 | 说明 |
@@ -200,34 +212,41 @@
 #### 4.1.1 用户表 (profiles)
 ```sql
 profiles (
-  id uuid PRIMARY KEY REFERENCES auth.users(id),
-  email text UNIQUE,
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  email text UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,  -- bcrypt 哈希密码
   full_name text,
   avatar_url text,
-  role text DEFAULT 'user',  -- 新增: 'admin' | 'user'
-  created_at timestamp,
-  updated_at timestamp
+  role text DEFAULT 'user',  -- 'admin' | 'user'
+  email_verified BOOLEAN DEFAULT FALSE,  -- 邮箱验证状态
+  verification_token TEXT,  -- 邮箱验证令牌
+  verification_token_expires_at TIMESTAMP,  -- 验证令牌过期时间
+  reset_token TEXT,  -- 密码重置令牌
+  reset_token_expires_at TIMESTAMP,  -- 重置令牌过期时间
+  last_login_at TIMESTAMP,  -- 最后登录时间
+  created_at timestamp DEFAULT NOW(),
+  updated_at timestamp DEFAULT NOW()
 )
 ```
 
 #### 4.1.2 品牌表 (brands)
 ```sql
 brands (
-  id uuid PRIMARY KEY,
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text UNIQUE NOT NULL,
   name_en text,  -- 英文名称
   name_zh text,  -- 中文名称
   logo_url text,
   sort_order int,
-  created_at timestamp,
-  updated_at timestamp
+  created_at timestamp DEFAULT NOW(),
+  updated_at timestamp DEFAULT NOW()
 )
 ```
 
 #### 4.1.3 商品表 (products)
 ```sql
 products (
-  id uuid PRIMARY KEY,
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   brand_id uuid REFERENCES brands(id),
   name text NOT NULL,
   name_en text,  -- 英文名称
@@ -237,15 +256,15 @@ products (
   images jsonb,  -- 多图片有序数组（第一张为主图）
   status text DEFAULT 'active',  -- active/inactive/sold_out
   sort_order int,
-  created_at timestamp,
-  updated_at timestamp
+  created_at timestamp DEFAULT NOW(),
+  updated_at timestamp DEFAULT NOW()
 )
 ```
 
 #### 4.1.4 地址表 (addresses)
 ```sql
 addresses (
-  id uuid PRIMARY KEY,
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid REFERENCES profiles(id),
   recipient_name text NOT NULL,
   phone text NOT NULL,
@@ -256,15 +275,15 @@ addresses (
   address_line2 text,
   postal_code text,
   is_default boolean DEFAULT false,
-  created_at timestamp,
-  updated_at timestamp
+  created_at timestamp DEFAULT NOW(),
+  updated_at timestamp DEFAULT NOW()
 )
 ```
 
 #### 4.1.5 订单表 (orders)
 ```sql
 orders (
-  id uuid PRIMARY KEY,
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid REFERENCES profiles(id),
   order_number text UNIQUE NOT NULL,
   status text DEFAULT 'pending_payment',  -- pending_payment/paid/shipped/delivered/cancelled
@@ -281,40 +300,40 @@ orders (
   shipped_at timestamp,  -- 发货时间
   delivered_at timestamp,  -- 送达时间
   cancelled_at timestamp,  -- 取消时间
-  created_at timestamp,
-  updated_at timestamp
+  created_at timestamp DEFAULT NOW(),
+  updated_at timestamp DEFAULT NOW()
 )
 ```
 
 #### 4.1.6 订单商品表 (order_items)
 ```sql
 order_items (
-  id uuid PRIMARY KEY,
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id uuid REFERENCES orders(id),
   product_id uuid REFERENCES products(id),
   product_name text NOT NULL,
   product_specification text,
   price decimal NOT NULL,
   quantity int NOT NULL,
-  created_at timestamp
+  created_at timestamp DEFAULT NOW()
 )
 ```
 
-#### 4.1.7 点赞表 (likes) - 新增
+#### 4.1.7 点赞表 (likes)
 ```sql
 likes (
-  id uuid PRIMARY KEY,
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid REFERENCES profiles(id),
   product_id uuid REFERENCES products(id),
-  created_at timestamp,
+  created_at timestamp DEFAULT NOW(),
   UNIQUE(user_id, product_id)
 )
 ```
 
-#### 4.1.8 协商记录表 (order_negotiations) - 新增
+#### 4.1.8 协商记录表 (order_negotiations)
 ```sql
 order_negotiations (
-  id uuid PRIMARY KEY,
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id uuid REFERENCES orders(id),
   negotiation_type text NOT NULL,  -- 'shipping_fee' | 'total_amount'
   negotiated_amount decimal NOT NULL,
@@ -323,15 +342,15 @@ order_negotiations (
   initiated_by uuid REFERENCES profiles(id),  -- 发起人
   processed_by uuid REFERENCES profiles(id),  -- 处理人（管理员）
   processed_at timestamp,  -- 处理时间
-  created_at timestamp,
-  updated_at timestamp
+  created_at timestamp DEFAULT NOW(),
+  updated_at timestamp DEFAULT NOW()
 )
 ```
 
 #### 4.1.9 操作日志表 (admin_logs)
 ```sql
 admin_logs (
-  id uuid PRIMARY KEY,
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   admin_id uuid REFERENCES profiles(id),
   action text NOT NULL,  -- 操作类型
   resource_type text,  -- 资源类型
@@ -340,19 +359,19 @@ admin_logs (
   details jsonb,  -- 操作详情
   ip_address text,
   user_agent text,
-  created_at timestamp
+  created_at timestamp DEFAULT NOW()
 )
 ```
 
-#### 4.1.10 统计数据表 (statistics) - 新增
+#### 4.1.10 统计数据表 (statistics)
 ```sql
 statistics (
-  id uuid PRIMARY KEY,
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   stat_type text NOT NULL,  -- 'daily_sales' | 'weekly_sales' | 'monthly_sales' | 'product_ranking' | 'user_growth'
   stat_date date NOT NULL,  -- 统计日期
   stat_data jsonb NOT NULL,  -- 统计数据（JSON格式存储）
-  created_at timestamp,
-  updated_at timestamp,
+  created_at timestamp DEFAULT NOW(),
+  updated_at timestamp DEFAULT NOW(),
   UNIQUE(stat_type, stat_date)
 )
 ```
@@ -385,6 +404,7 @@ statistics (
 ### 4.2 已移除的表
 - ~~favorites~~ - 收藏改用 localStorage
 - ~~reviews~~ - B2B 不需要评价系统
+- ~~auth.users~~ - 不再使用 Supabase Auth
 
 ### 4.3 索引设计
 ```sql
@@ -425,6 +445,12 @@ CREATE INDEX idx_statistics_date ON statistics(stat_date DESC);
 -- 点赞索引
 CREATE INDEX idx_likes_user ON likes(user_id);
 CREATE INDEX idx_likes_product ON likes(product_id);
+
+-- 认证相关索引
+CREATE INDEX idx_profiles_email ON profiles(email);
+CREATE INDEX idx_profiles_verification_token ON profiles(verification_token);
+CREATE INDEX idx_profiles_reset_token ON profiles(reset_token);
+CREATE INDEX idx_profiles_email_verified ON profiles(email_verified);
 ```
 
 ---
@@ -446,7 +472,9 @@ CREATE INDEX idx_likes_product ON likes(product_id);
 /account/orders/[id]        # 订单详情
 /auth/login                 # 登录
 /auth/register              # 注册
+/auth/verify                # 邮箱验证
 /auth/forgot-password       # 忘记密码
+/auth/reset-password       # 重置密码
 ```
 
 **导航栏配置：** 首页、商品、关于
@@ -461,8 +489,8 @@ CREATE INDEX idx_likes_product ON likes(product_id);
 /admin/products/[id]        # 编辑商品
 /admin/orders               # 订单管理
 /admin/orders/[id]          # 订单详情
-/admin/negotiations         # 协商管理（新增）
-/admin/negotiations/[id]    # 协商详情（新增）
+/admin/negotiations         # 协商管理
+/admin/negotiations/[id]    # 协商详情
 /admin/users                # 用户管理
 /admin/users/[id]           # 用户详情
 /admin/logs                 # 操作日志
@@ -494,15 +522,20 @@ CREATE INDEX idx_likes_product ON likes(product_id);
 ## 七、安全策略
 
 ### 7.1 认证安全
-- Supabase Auth JWT 认证
-- 会话自动刷新
-- 安全的密码存储
-- 用户角色权限控制（超级管理员/普通用户）
+- **密码安全**: bcrypt 哈希（12 rounds）
+- **会话管理**: JWT Token + HTTP-only Cookie
+- **Token 有效期**: 7 天
+- **密码强度**: 至少 8 位，包含大小写字母和数字
+- **邮箱验证**: 注册后必须验证邮箱
+- **密码重置**: 通过邮件令牌重置（1 小时有效期）
 
 ### 7.2 数据安全
-- RLS (Row Level Security) 策略
-- API 请求验证
-- SQL 注入防护
+- **应用层权限控制**：所有数据访问权限在 Server Actions 中验证
+- **用户数据隔离**：查询时强制添加 `user_id = current_user.id` 条件
+- **管理员权限检查**：管理功能中验证 `role = 'admin'`
+- **SQL 注入防护**：使用 Supabase 客户端参数化查询
+- **外键约束**：数据库表之间的外键关系确保数据完整性
+- **唯一约束**：邮箱等关键字段使用唯一约束防止重复
 
 ### 7.3 支付安全
 - Creem Webhook 签名验证
@@ -561,7 +594,6 @@ Vercel (前端)
 
 Supabase (后端)
   ├── PostgreSQL 数据库
-  ├── Auth 认证服务
   ├── Storage 文件存储
   └── Edge Functions
 
@@ -577,6 +609,13 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 
+# JWT 认证配置
+JWT_SECRET=your-super-secret-jwt-key-change-in-production
+
+# Resend 邮件服务配置
+RESEND_API_KEY=your_resend_api_key
+RESEND_FROM_EMAIL=noreply@yourdomain.com
+
 # Creem 支付
 CREEM_API_KEY=
 CREEM_WEBHOOK_SECRET=
@@ -591,37 +630,111 @@ NEXT_PUBLIC_APP_URL=
 NEXT_PUBLIC_APP_NAME=
 ```
 
-**注意：** Google OAuth 凭证已在 Supabase Dashboard 中配置，无需在项目环境变量中添加 `GOOGLE_CLIENT_ID` 和 `GOOGLE_CLIENT_SECRET`。
-
 ---
 
-## 十一、开发计划
+## 十一、认证系统详细说明
 
-### 11.1 第一阶段：基础框架
-- [ ] 项目初始化
-- [ ] UI 组件库搭建（使用 ui-ux-pro-max 设计配色）
-- [ ] 数据库设计
-- [ ] 认证系统
+### 11.1 认证架构
 
-### 11.2 第二阶段：用户端核心
-- [ ] 商品展示
-- [ ] 购物车（localStorage）
-- [ ] 订单流程
-- [ ] 支付集成
-- [ ] 点赞功能
+```
+┌─────────────┐
+│   用户      │
+└──────┬──────┘
+       │
+       ▼
+┌──────────────────────┐
+│  注册/登录页面       │
+└──────┬───────────────┘
+       │
+       ▼
+┌──────────────────────┐
+│  Server Actions      │
+│  - 验证输入          │
+│  - bcrypt 哈希      │
+│  - 生成 JWT Token   │
+│  - 设置 Cookie      │
+└──────┬───────────────┘
+       │
+       ▼
+┌──────────────────────┐
+│  PostgreSQL (profiles)│
+│  - 密码哈希存储      │
+│  - 用户信息          │
+└──────────────────────┘
+       │
+       ▼
+┌──────────────────────┐
+│  Resend 邮件服务     │
+│  - 验证邮件          │
+│  - 重置密码邮件      │
+└──────────────────────┘
+```
 
-### 11.3 第三阶段：管理端
-- [ ] 商品管理（含品牌）
-- [ ] 订单管理
-- [ ] 协商管理
-- [ ] 用户管理
-- [ ] 数据统计
+### 11.2 密码安全
 
-### 11.4 第四阶段：优化完善
-- [ ] SEO 优化
-- [ ] 国际化
-- [ ] 性能优化
-- [ ] 测试
+- **哈希算法**: bcrypt
+- **加密轮数**: 12 rounds
+- **存储**: 哈希值存储在 `profiles.password_hash` 字段
+
+### 11.3 JWT Token
+
+- **算法**: HS256 (HMAC SHA-256)
+- **有效期**: 7 天
+- **存储**: HTTP-only Cookie
+- **Payload 包含**:
+  - userId: 用户 ID
+  - email: 用户邮箱
+  - iat: 签发时间
+  - exp: 过期时间
+
+### 11.4 邮件验证流程
+
+1. **注册**: 用户填写表单 → 创建用户 → 发送验证邮件（24小时有效）
+2. **验证**: 用户点击邮件链接 → 验证 token → 激活账户
+3. **登录**: 使用已验证的邮箱和密码登录
+4. **重置密码**: 请求重置 → 发送重置邮件（1小时有效） → 输入新密码
+
+### 11.5 权限控制策略
+
+由于使用自定义JWT认证而非Supabase Auth，系统采用**应用层权限控制**策略：
+
+**用户数据保护：**
+```typescript
+// 所有用户数据查询必须添加 user_id 过滤
+const currentUser = await getCurrentUser();
+const { data: orders } = await supabase
+  .from('orders')
+  .select('*')
+  .eq('user_id', currentUser.userId); // 强制数据隔离
+```
+
+**管理员权限检查：**
+```typescript
+// 管理功能必须验证角色
+const { data: profile } = await supabase
+  .from('profiles')
+  .select('role')
+  .eq('id', currentUser.userId)
+  .single();
+
+if (profile?.role !== 'admin') {
+  throw new Error('无权访问');
+}
+```
+
+**数据库层配置：**
+- 所有表的 RLS 已禁用（与自定义JWT认证不兼容）
+- 使用外键约束确保数据完整性
+- 使用唯一约束防止数据重复
+- 使用应用层权限控制替代RLS
+
+**Storage RLS 配置：**
+- ✅ Storage RLS 已启用，所有策略已删除
+- 当前状态：RLS 启用 + 0 个策略 = 默认阻止写入，允许读取
+- 配置说明：
+  - `products` 桶（public）：公开读取正常，写入通过应用层控制
+  - `avatars` 桶（private）：所有操作通过应用层权限控制
+- 与自定义JWT认证兼容（不依赖 `auth.uid()`）
 
 ---
 
@@ -668,8 +781,14 @@ cancelled (已取消)
 - B2B 模式: 每个订单可单独协商修改总价
 - 需记录协商历史
 
+### 12.7 密码要求
+- 最少 8 个字符
+- 必须包含至少一个大写字母
+- 必须包含至少一个小写字母
+- 必须包含至少一个数字
+
 ---
 
-*文档版本: v2.0*
-*最后更新: 2026-01-03*
-*更新内容: 调整为纯B2B模式，新增协商功能，移除评价系统*
+*文档版本: v3.1*
+*最后更新: 2026-01-05*
+*更新内容: 修复RLS与自定义认证的兼容性问题，明确应用层权限控制策略，禁用所有表RLS*
