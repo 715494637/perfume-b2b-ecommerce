@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { requestPasswordReset } from '@/actions/auth'
-import { GlassCard } from '@/components/ui/GlassCard'
-import { GlassInput } from '@/components/ui/GlassInput'
-import { GlassButton } from '@/components/ui/GlassButton'
+import { AuthLayout } from '@/components/auth/AuthLayout'
+import { GlassInput } from '@/components/ui/glass-input'
+import { GlassButton } from '@/components/ui/glass-button'
+import { motion } from 'framer-motion'
 
 export default function ForgotPasswordPage() {
   const router = useRouter()
@@ -26,88 +27,105 @@ export default function ForgotPasswordPage() {
     if (result.success) {
       setSuccess(true)
     } else {
-      setError(result.error || '发送失败，请稍后重试')
+      setError(result.error || 'Failed to send reset email. Please try again.')
     }
   }
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 p-4">
-        <GlassCard className="w-full max-w-md p-8">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">邮件已发送</h1>
-            <p className="text-gray-600 mb-4">
-              如果该邮箱已注册，您将收到重置密码的邮件
-            </p>
-            <p className="text-sm text-gray-500 mb-4">
-              请检查您的邮箱（包括垃圾邮件文件夹）
-            </p>
-            <GlassButton
-              onClick={() => router.push('/auth/login')}
-              className="w-full"
-            >
-              返回登录
-            </GlassButton>
-          </div>
-        </GlassCard>
-      </div>
+      <AuthLayout
+        title="Email Sent"
+        subtitle="Check your inbox for password reset instructions"
+        footer={
+          <GlassButton
+            onClick={() => router.push('/auth/login')}
+            className="w-full"
+            size="lg"
+          >
+            Back to Login
+          </GlassButton>
+        }
+      >
+        <motion.div
+          className="text-center py-4"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+        >
+          <motion.div
+            className="mx-auto w-16 h-16 bg-green-100/90 rounded-full flex items-center justify-center mb-4 animate-glow"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+          >
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </motion.div>
+          <p className="text-gray-200 text-sm">
+            If the email is registered, you will receive a password reset email
+          </p>
+          <p className="text-gray-300 text-xs mt-2">
+            Please check your inbox (including spam folder)
+          </p>
+        </motion.div>
+      </AuthLayout>
     )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 p-4">
-      <GlassCard className="w-full max-w-md p-8">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">忘记密码</h1>
-          <p className="text-gray-600">请输入您的邮箱地址，我们将发送重置密码的邮件</p>
-        </div>
+    <AuthLayout
+      title="Forgot Password"
+      subtitle="Enter your email to reset your password"
+      errorMessage={error}
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <GlassInput
+            type="email"
+            label="Email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </motion.div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              邮箱地址
-            </label>
-            <GlassInput
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
-              required
-              className="w-full"
-            />
-          </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
-
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
           <GlassButton
             type="submit"
             disabled={loading}
+            loading={loading}
             className="w-full"
+            size="lg"
           >
-            {loading ? '发送中...' : '发送重置邮件'}
+            {loading ? 'Sending...' : 'Send Reset Email'}
           </GlassButton>
+        </motion.div>
 
-          <div className="text-center">
-            <button
-              type="button"
-              onClick={() => router.push('/auth/login')}
-              className="text-sm text-purple-600 hover:text-purple-700"
-            >
-              返回登录
-            </button>
-          </div>
-        </form>
-      </GlassCard>
-    </div>
+        <motion.div
+          className="text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <button
+            type="button"
+            onClick={() => router.push('/auth/login')}
+            className="text-sm text-gray-200 hover:text-white transition-colors underline-offset-4 hover:underline"
+          >
+            Back to Login
+          </button>
+        </motion.div>
+      </form>
+    </AuthLayout>
   )
 }

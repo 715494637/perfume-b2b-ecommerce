@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, Suspense, use } from 'react'
+import { useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { resetPassword } from '@/actions/auth'
-import { GlassCard } from '@/components/ui/GlassCard'
-import { GlassInput } from '@/components/ui/GlassInput'
-import { GlassButton } from '@/components/ui/GlassButton'
+import { AuthLayout } from '@/components/auth/AuthLayout'
+import { GlassInput } from '@/components/ui/glass-input'
+import { GlassButton } from '@/components/ui/glass-button'
+import { motion } from 'framer-motion'
 
 function ResetPasswordContent() {
   const searchParams = useSearchParams()
@@ -20,20 +21,19 @@ function ResetPasswordContent() {
 
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 p-4">
-        <GlassCard className="w-full max-w-md p-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">无效的重置链接</h1>
-            <p className="text-gray-600 mb-4">重置链接已过期或无效</p>
-            <GlassButton
-              onClick={() => router.push('/auth/forgot-password')}
-              className="w-full"
-            >
-              重新申请重置密码
-            </GlassButton>
-          </div>
-        </GlassCard>
-      </div>
+      <AuthLayout
+        title="Invalid Reset Link"
+        subtitle="The reset link has expired or is invalid"
+        footer={
+          <GlassButton
+            onClick={() => router.push('/auth/forgot-password')}
+            className="w-full"
+            size="lg"
+          >
+            Request New Reset
+          </GlassButton>
+        }
+      />
     )
   }
 
@@ -42,13 +42,13 @@ function ResetPasswordContent() {
     setError('')
 
     if (password !== confirmPassword) {
-      setError('两次输入的密码不一致')
+      setError('Passwords do not match')
       return
     }
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
     if (!passwordRegex.test(password)) {
-      setError('密码至少需要 8 个字符，包含大小写字母和数字')
+      setError('Password must be at least 8 characters, including uppercase, lowercase, and number')
       return
     }
 
@@ -68,97 +68,111 @@ function ResetPasswordContent() {
         router.push('/auth/login?reset=true')
       }, 2000)
     } else {
-      setError(result.error || '重置密码失败')
+      setError(result.error || 'Failed to reset password')
     }
   }
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 p-4">
-        <GlassCard className="w-full max-w-md p-8">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">密码重置成功</h1>
-            <p className="text-gray-600 mb-4">请使用新密码登录</p>
-            <p className="text-sm text-gray-500">正在跳转到登录页面...</p>
-          </div>
-        </GlassCard>
-      </div>
+      <AuthLayout
+        title="Password Reset Successful"
+        subtitle="Please use your new password to login"
+      >
+        <motion.div
+          className="text-center py-4"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+        >
+          <motion.div
+            className="mx-auto w-16 h-16 bg-green-100/90 rounded-full flex items-center justify-center mb-4 animate-glow"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+          >
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </motion.div>
+          <p className="text-gray-300 text-sm">Redirecting to login page...</p>
+        </motion.div>
+      </AuthLayout>
     )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 p-4">
-      <GlassCard className="w-full max-w-md p-8">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">重置密码</h1>
-          <p className="text-gray-600">请输入您的新密码</p>
-        </div>
+    <AuthLayout
+      title="Reset Password"
+      subtitle="Enter your new password"
+      errorMessage={error}
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <GlassInput
+            type="password"
+            label="New Password"
+            placeholder="At least 8 characters, including uppercase, lowercase, and number"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </motion.div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              新密码
-            </label>
-            <GlassInput
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="至少 8 个字符，包含大小写字母和数字"
-              required
-              className="w-full"
-            />
-          </div>
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <GlassInput
+            type="password"
+            label="Confirm New Password"
+            placeholder="Enter your new password again"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+        </motion.div>
 
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-              确认新密码
-            </label>
-            <GlassInput
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="再次输入新密码"
-              required
-              className="w-full"
-            />
-          </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
-
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
           <GlassButton
             type="submit"
             disabled={loading}
+            loading={loading}
             className="w-full"
+            size="lg"
           >
-            {loading ? '重置中...' : '重置密码'}
+            {loading ? 'Resetting...' : 'Reset Password'}
           </GlassButton>
-        </form>
-      </GlassCard>
-    </div>
+        </motion.div>
+      </form>
+    </AuthLayout>
   )
 }
 
 export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 p-4">
-        <GlassCard className="w-full max-w-md p-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4" />
-            <p className="text-gray-600">加载中...</p>
-          </div>
-        </GlassCard>
+      <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+        <div
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/background.png')" }}
+        />
+        <div className="absolute inset-0 z-0 bg-black/30" />
+        <div className="relative z-10">
+          <motion.div
+            className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
       </div>
     }>
       <ResetPasswordContent />

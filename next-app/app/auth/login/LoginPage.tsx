@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { signIn } from '@/actions/auth'
-import { GlassCard } from '@/components/ui/GlassCard'
-import { GlassButton } from '@/components/ui/GlassButton'
-import { GlassInput } from '@/components/ui/GlassInput'
+import { GlassCard as NewGlassCard } from '@/components/ui/glass-card'
+import { GlassButton as NewGlassButton } from '@/components/ui/glass-button'
+import { GlassInput as NewGlassInput } from '@/components/ui/glass-input'
+import { GlassSpinner } from '@/components/ui/glass-spinner'
+import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { resendVerificationEmail } from '@/actions/auth'
 
@@ -38,11 +40,11 @@ export default function LoginPage() {
   useEffect(() => {
     // 显示验证成功的消息
     if (verified === 'true') {
-      setSuccessMessage('邮箱验证成功，请登录')
+      setSuccessMessage('Email verified successfully. Please sign in.')
       setTimeout(() => setSuccessMessage(null), 3000)
     }
     if (reset === 'true') {
-      setSuccessMessage('密码重置成功，请使用新密码登录')
+      setSuccessMessage('Password reset successful. Please sign in with your new password.')
       setTimeout(() => setSuccessMessage(null), 3000)
     }
   }, [verified, reset])
@@ -66,9 +68,9 @@ export default function LoginPage() {
     } else {
       if (result.requireVerification) {
         setRequireVerification(true)
-        setError(result.error || '请先验证您的邮箱地址')
+        setError(result.error || 'Please verify your email address first')
       } else {
-        setError(result.error || '登录失败，请稍后重试')
+        setError(result.error || 'Sign in failed. Please try again.')
       }
     }
 
@@ -78,7 +80,7 @@ export default function LoginPage() {
   const handleResendVerification = async () => {
     const email = errors.email?.message ? '' : searchParams.get('email') || ''
     if (!email) {
-      setError('请输入邮箱地址')
+      setError('Please enter your email address')
       return
     }
 
@@ -86,10 +88,10 @@ export default function LoginPage() {
     const result = await resendVerificationEmail(email)
 
     if (result.success) {
-      setSuccessMessage('验证邮件已发送，请查看邮箱')
+      setSuccessMessage('Verification email sent. Please check your inbox.')
       setRequireVerification(false)
     } else {
-      setError(result.error || '发送失败，请稍后重试')
+      setError(result.error || 'Failed to send email. Please try again.')
     }
 
     setResending(false)
@@ -105,106 +107,171 @@ export default function LoginPage() {
       {/* Semi-transparent overlay */}
       <div className="absolute inset-0 z-0 bg-black/30" />
 
-      <GlassCard className="w-full max-w-[380px] p-6 relative z-10 border-white/20 shadow-2xl backdrop-blur-[60px] bg-white/5 rounded-3xl">
-        <div className="text-center mb-5">
-          <h1 className="text-3xl font-serif text-white mb-2 tracking-wide">Welcome Back</h1>
-          <p className="text-gray-200 text-sm font-light tracking-wide opacity-80">Sign in to your account</p>
-        </div>
-
-        {successMessage && (
-          <div className="mb-4 p-3 bg-green-100/90 border border-green-400/50 text-green-700 rounded-lg text-sm">
-            {successMessage}
-          </div>
-        )}
-
-        {error && (
-          <div
-            className={`mb-4 p-3 rounded-lg text-sm ${
-              requireVerification
-                ? 'bg-yellow-100/90 border border-yellow-400/50 text-yellow-700'
-                : 'bg-red-100/90 border border-red-400/50 text-red-700'
-            }`}
+      <motion.div
+        className="relative z-10"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+      >
+        <NewGlassCard
+          className="w-full max-w-[480px] p-6 border-white/20"
+          tilt
+        >
+          {/* Header */}
+          <motion.div
+            className="text-center mb-5"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
           >
-            {error}
-            {requireVerification && (
-              <button
-                onClick={handleResendVerification}
-                disabled={resending}
-                className="ml-2 underline hover:no-underline"
+            <h1 className="text-3xl font-serif text-white mb-2 tracking-wide">Welcome Back</h1>
+            <p className="text-gray-200 text-sm font-light tracking-wide opacity-80">Sign in to your account</p>
+          </motion.div>
+
+          {/* Success Message */}
+          <AnimatePresence>
+            {successMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mb-4 p-3 bg-green-100/90 border border-green-400/50 text-green-700 rounded-lg text-sm"
               >
-                {resending ? '发送中...' : '重新发送'}
-              </button>
+                {successMessage}
+              </motion.div>
             )}
-          </div>
-        )}
+          </AnimatePresence>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <GlassInput
-            type="email"
-            label="Email"
-            placeholder="Enter your email"
-            {...register('email', {
-              required: 'Email is required',
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: 'Please enter a valid email address',
-              },
-            })}
-            error={errors.email?.message}
-          />
+          {/* Error Message */}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className={`mb-4 p-3 rounded-lg text-sm ${
+                  requireVerification
+                    ? 'bg-yellow-100/90 border border-yellow-400/50 text-yellow-700'
+                    : 'bg-red-100/90 border border-red-400/50 text-red-700'
+                }`}
+              >
+                {error}
+                {requireVerification && (
+                  <motion.button
+                    type="button"
+                    onClick={handleResendVerification}
+                    disabled={resending}
+                    className="ml-2 underline hover:no-underline font-medium"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {resending ? 'Sending...' : 'Resend'}
+                  </motion.button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          <GlassInput
-            type="password"
-            label="Password"
-            placeholder="Enter your password"
-            {...register('password', {
-              required: 'Password is required',
-              minLength: {
-                value: 8,
-                message: 'Password must be at least 8 characters',
-              },
-            })}
-            error={errors.password?.message}
-          />
-
-          <div className="flex items-center justify-between pt-1">
-            <label className="flex items-center cursor-pointer group">
-              <input
-                type="checkbox"
-                {...register('remember')}
-                className="mr-2 w-4 h-4 rounded border-white/30 bg-white/10 text-white focus:ring-offset-0 focus:ring-1 focus:ring-white/50"
+          {/* Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <NewGlassInput
+                type="email"
+                label="Email"
+                placeholder="Enter your email"
+                {...register('email', {
+                  required: 'Email is required',
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Please enter a valid email address',
+                  },
+                })}
+                error={errors.email?.message}
               />
-              <span className="text-sm text-gray-200 group-hover:text-white transition-colors">Remember me</span>
-            </label>
-            <Link
-              href="/auth/forgot-password"
-              className="text-sm text-gray-200 hover:text-white transition-colors underline-offset-4 hover:underline"
-            >
-              Forgot password?
-            </Link>
-          </div>
+            </motion.div>
 
-          <GlassButton
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-full bg-white hover:bg-white/90 text-black font-medium py-2.5 text-base transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <NewGlassInput
+                type="password"
+                label="Password"
+                placeholder="Enter your password"
+                {...register('password', {
+                  required: 'Password is required',
+                  minLength: {
+                    value: 8,
+                    message: 'Password must be at least 8 characters',
+                  },
+                })}
+                error={errors.password?.message}
+              />
+            </motion.div>
+
+            <motion.div
+              className="flex items-center justify-between pt-1 gap-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <label className="flex items-center cursor-pointer group">
+                <input
+                  type="checkbox"
+                  {...register('remember')}
+                  className="mr-2 w-4 h-4 rounded border-white/30 bg-white/10 text-white focus:ring-offset-0 focus:ring-1 focus:ring-white/50"
+                />
+                <span className="text-sm text-gray-200 group-hover:text-white transition-colors">Remember me</span>
+              </label>
+              <Link
+                href="/auth/forgot-password"
+                className="text-sm text-gray-200 hover:text-white transition-colors underline-offset-4 hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <NewGlassButton
+                type="submit"
+                disabled={loading}
+                loading={loading}
+                className="w-full"
+                size="lg"
+              >
+                {loading ? 'Signing in...' : 'Sign in'}
+              </NewGlassButton>
+            </motion.div>
+          </form>
+
+          {/* Footer */}
+          <motion.div
+            className="mt-5 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
           >
-            {loading ? 'Signing in...' : 'Sign in'}
-          </GlassButton>
-        </form>
-
-        <div className="mt-5 text-center">
-          <p className="text-gray-300 text-sm">
-            Don't have an account?{' '}
-            <Link
-              href="/auth/register"
-              className="text-white font-medium hover:underline underline-offset-4"
-            >
-              Sign up
-            </Link>
-          </p>
-        </div>
-      </GlassCard>
+            <p className="text-gray-300 text-sm">
+              Don&apos;t have an account?{' '}
+              <Link
+                href="/auth/register"
+                className="text-white font-medium hover:underline underline-offset-4"
+              >
+                Sign up
+              </Link>
+            </p>
+          </motion.div>
+        </NewGlassCard>
+      </motion.div>
     </div>
   )
 }
